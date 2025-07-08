@@ -59,3 +59,41 @@ resource "aws_iam_role_policy_attachment" "lambda_attach" {
   role       = aws_iam_role.lambda_exec[each.key].name
   policy_arn = aws_iam_policy.lambda_policy[each.key].arn
 }
+
+
+# Create a separate policy for CloudWatch logs
+resource "aws_iam_policy" "lambda_logs_policy" {
+  for_each = var.lambda_functions
+
+  name   = "${var.env}-${each.value.name}-logs-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup"
+        ]
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/lambda/${var.env}-${each.value.name}:*"
+      }
+    ]
+  })
+
+  tags = local.common_tags
+}
+
+# Attach the CloudWatch logs policy to the Lambda execution role
+resource "aws_iam_role_policy_attachment" "lambda_logs_attach" {
+  for_each = var.lambda_functions
+
+  role       = aws_iam_role.lambda_exec[each.key].name
+  policy_arn = aws_iam_policy.lambda_logs_policy[each.key].arn
+}
