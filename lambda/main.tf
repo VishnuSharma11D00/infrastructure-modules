@@ -8,7 +8,7 @@ resource "aws_lambda_function" "lambda" {
   for_each = var.lambda_functions
 
   filename      = each.value.zip_file
-  function_name = "${var.env}-${each.value.name}"
+  function_name = "${var.env}-${var.prefix}-${each.value.name}"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.13"
   role          = aws_iam_role.lambda_exec[each.key].arn
