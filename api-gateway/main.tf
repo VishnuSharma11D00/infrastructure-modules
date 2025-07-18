@@ -44,7 +44,7 @@ resource "aws_api_gateway_integration" "integration" {
 
   request_templates = try({
     "application/json" = jsonencode(each.value.mapping_template_body)
-  }, null)
+  }, {})
 }
 
 resource "aws_api_gateway_integration_response" "integration_response" {
