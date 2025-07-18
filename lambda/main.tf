@@ -13,12 +13,7 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "python3.13"
   role          = aws_iam_role.lambda_exec[each.key].arn
 
-  dynamic "layers" {
-    for_each = each.value.lambda_layer_arn != null ? [each.value.lambda_layer_arn] : []
-    content {
-      arn = layers.value
-    }
-  }
+  layers = each.value.lambda_layer_arn != null ? [each.value.lambda_layer_arn] : []
 
   environment {
     variables = each.value.environment_variables
