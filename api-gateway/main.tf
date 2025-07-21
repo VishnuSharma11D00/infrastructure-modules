@@ -42,9 +42,9 @@ resource "aws_api_gateway_integration" "integration" {
   # Here the type should be AWS, not AWS_PROXY for lambda integration with CORS
   uri = "arn:aws:apigateway:${var.my_region}:lambda:path/2015-03-31/functions/${each.value.lambda_function_arn}/invocations"
 
-  request_templates = try({
+  request_templates = {
     "application/json" = jsonencode(each.value.mapping_template_body)
-  }, {})
+  }
 }
 
 resource "aws_api_gateway_integration_response" "integration_response" {
