@@ -43,7 +43,7 @@ resource "aws_api_gateway_integration" "integration" {
   uri = "arn:aws:apigateway:${var.my_region}:lambda:path/2015-03-31/functions/${each.value.lambda_function_arn}/invocations"
 
   request_templates = {
-    "application/json" = jsonencode(each.value.mapping_template_body)
+    "application/json" = each.value.mapping_template_body
   }
 }
 
