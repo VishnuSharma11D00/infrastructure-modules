@@ -7,6 +7,11 @@ locals {
 # API Gateway
 resource "aws_api_gateway_rest_api" "api" {
   name = "${var.env}-${var.api_name}"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
   tags = local.common_tags
 }
 
