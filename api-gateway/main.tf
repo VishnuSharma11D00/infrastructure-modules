@@ -133,7 +133,7 @@ resource "aws_api_gateway_integration_response" "cors_integration_response" {
   resource_id = aws_api_gateway_resource.resource[each.key].id
   http_method = aws_api_gateway_method.cors_options[each.key].http_method
   status_code = "200"
-  depends_on  = [aws_api_gateway_integration.cors_integration]
+  depends_on  = [aws_api_gateway_integration.cors_integration, aws_api_gateway_method_response.cors_method_response]
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
