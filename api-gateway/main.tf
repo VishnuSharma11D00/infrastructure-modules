@@ -59,11 +59,16 @@ resource "aws_api_gateway_integration_response" "integration_response" {
   resource_id = aws_api_gateway_resource.resource[each.key].id
   http_method = aws_api_gateway_method.method[each.key].http_method
   status_code = "200"
-  depends_on  = [aws_api_gateway_integration.integration]
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = "'${var.cors_allowed_origin}'"
   }
+
+    depends_on  = [
+      aws_api_gateway_integration.integration,
+      aws_api_gateway_method_response.method_response
+    ]
+
 }
 
 resource "aws_api_gateway_method_response" "method_response" {
