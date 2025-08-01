@@ -7,6 +7,11 @@ locals {
 # API Gateway
 resource "aws_api_gateway_rest_api" "api" {
   name = "${var.env}-${var.api_name}"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
   tags = local.common_tags
 }
 
@@ -42,9 +47,9 @@ resource "aws_api_gateway_integration" "integration" {
   # Here the type should be AWS, not AWS_PROXY for lambda integration with CORS
   uri = "arn:aws:apigateway:${var.my_region}:lambda:path/2015-03-31/functions/${each.value.lambda_function_arn}/invocations"
 
-  request_templates = try({
-    "application/json" = jsonencode(each.value.mapping_template_body)
-  }, null)
+  request_templates = {
+    "application/json" = each.value.mapping_template_body
+  }
 }
 
 resource "aws_api_gateway_integration_response" "integration_response" {
@@ -54,12 +59,62 @@ resource "aws_api_gateway_integration_response" "integration_response" {
   resource_id = aws_api_gateway_resource.resource[each.key].id
   http_method = aws_api_gateway_method.method[each.key].http_method
   status_code = "200"
-  depends_on  = [aws_api_gateway_integration.integration]
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = "'${var.cors_allowed_origin}'"
   }
+
+    depends_on  = [
+      aws_api_gateway_integration.integration,
+      aws_api_gateway_method_response.method_response
+    ]
+
 }
+
+resource "aws_api_gateway_method_response" "method_response_500" {
+  for_each = var.api_configurations
+
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.resource[each.key].id
+  http_method = aws_api_gateway_method.method[each.key].http_method
+  status_code = "500"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+
+  depends_on = [aws_api_gateway_method.method]
+}
+
+
+resource "aws_api_gateway_integration_response" "integration_response_500" {
+  for_each = var.api_configurations
+
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.resource[each.key].id
+  http_method = aws_api_gateway_method.method[each.key].http_method
+  status_code = "500"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'${var.cors_allowed_origin}'"
+  }
+
+  response_templates = {
+    "application/json" = jsonencode({
+      message = "$input.path('$.errorMessage')"
+    })
+  }
+
+  depends_on = [
+    aws_api_gateway_integration.integration,
+    aws_api_gateway_method_response.method_response_500
+  ]
+}
+
 
 resource "aws_api_gateway_method_response" "method_response" {
   for_each = var.api_configurations
@@ -123,7 +178,7 @@ resource "aws_api_gateway_integration_response" "cors_integration_response" {
   resource_id = aws_api_gateway_resource.resource[each.key].id
   http_method = aws_api_gateway_method.cors_options[each.key].http_method
   status_code = "200"
-  depends_on  = [aws_api_gateway_integration.cors_integration]
+  depends_on  = [aws_api_gateway_integration.cors_integration, aws_api_gateway_method_response.cors_method_response]
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"

@@ -25,6 +25,6 @@ variable "api_configurations" {
     lambda_function_name    = string
     lambda_function_arn     = string
     query_string_parameters = optional(map(bool))
-    mapping_template_body   = optional(string)
+    mapping_template_body   = optional(string, "$input.json('$')")
   }))
 }
