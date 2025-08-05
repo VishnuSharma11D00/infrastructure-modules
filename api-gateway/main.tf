@@ -163,11 +163,21 @@ resource "aws_api_gateway_method_response" "cors_method_response" {
 
 resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  depends_on  = [aws_api_gateway_integration.integration, aws_api_gateway_integration.cors_integration]
+
+  depends_on = [
+    aws_api_gateway_integration.integration,
+    aws_api_gateway_integration.cors_integration,
+    aws_api_gateway_method_response.method_response,
+    aws_api_gateway_method_response.cors_method_response
+  ]
 
   triggers = {
     redeployment = sha1(jsonencode({
       api_configurations = var.api_configurations
+      resources          = tomap({ for k, v in aws_api_gateway_resource.resource : k => v.id })
+      methods            = tomap({ for k, v in aws_api_gateway_method.method : k => v.id })
+      cors_methods       = tomap({ for k, v in aws_api_gateway_method.cors_options : k => v.id })
+      integrations       = tomap({ for k, v in aws_api_gateway_integration.integration : k => v.id })
     }))
   }
 
@@ -175,6 +185,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     create_before_destroy = true
   }
 }
+
 
 
 resource "aws_api_gateway_stage" "api_stage" {
