@@ -53,7 +53,7 @@ This module sets up a **single REST API** with multiple resources and methods.
 - **CORS Support**: 
   - Use `cors_allowed_origin` variable to allow specific origins (e.g., `"*"` for all origins)
 
-🔗 [API Gateway Module Release v0.0.10](https://github.com/VishnuSharma11D00/infrastructure-modules/releases/tag/api-gateway-v0.0.10)
+🔗 [API Gateway Module Release v0.1.0](https://github.com/VishnuSharma11D00/infrastructure-modules/releases/tag/api-gateway-v0.1.0)
 
 ---
 
