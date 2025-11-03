@@ -174,6 +174,8 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   triggers = {
     redeployment = sha1(jsonencode({
       api_configurations = var.api_configurations
+      cors_allowed_origin   = var.cors_allowed_origin  
+      env                   = var.env
       resources          = tomap({ for k, v in aws_api_gateway_resource.resource : k => v.id })
       methods            = tomap({ for k, v in aws_api_gateway_method.method : k => v.id })
       cors_methods       = tomap({ for k, v in aws_api_gateway_method.cors_options : k => v.id })
