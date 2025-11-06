@@ -13,7 +13,7 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "python3.13"
   role          = aws_iam_role.lambda_exec[each.key].arn
 
-  layers = each.value.lambda_layer_arn != null ? [each.value.lambda_layer_arn] : []
+  layers = try([each.value.lambda_layer_arn], [])
 
   environment {
     variables = each.value.environment_variables
