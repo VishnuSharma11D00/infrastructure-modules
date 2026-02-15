@@ -13,7 +13,10 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "python3.13"
   role          = aws_iam_role.lambda_exec[each.key].arn
 
-  layers = each.value.lambda_layer_arn != null ? [each.value.lambda_layer_arn] : []
+  # AUTOMATIC ARN CONSTRUCTION
+  layers = each.value.lambda_layer_name != null ? [
+    "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:layer:${each.value.lambda_layer_name}"
+  ] : []
 
   environment {
     variables = each.value.environment_variables

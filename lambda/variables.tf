@@ -4,7 +4,7 @@ variable "lambda_functions" {
     zip_file              = string
     tagValue              = string
     policy_name           = string
-    lambda_layer_arn = optional(string, null)
+    lambda_layer_name = optional(string, null)
     environment_variables = map(string)
     policy_document       = any
   }))
