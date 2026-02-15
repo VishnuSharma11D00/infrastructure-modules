@@ -18,7 +18,7 @@ resource "aws_lambda_function" "lambda" {
 
   # AUTOMATIC ARN CONSTRUCTION
   layers = each.value.lambda_layer_name != null ? [
-    "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:layer:${each.value.lambda_layer_name}"
+    "arn:aws:lambda:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:layer:${each.value.lambda_layer_name}"
   ] : []
 
   environment {
@@ -82,7 +82,7 @@ resource "aws_iam_policy" "lambda_logs_policy" {
         Action = [
           "logs:CreateLogGroup"
         ]
-        Resource = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
+        Resource = "arn:aws:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:*"
       },
       {
         Effect = "Allow"
@@ -90,7 +90,7 @@ resource "aws_iam_policy" "lambda_logs_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.env}-${var.prefix}-${each.value.name}:*"
+        Resource = "arn:aws:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.env}-${var.prefix}-${each.value.name}:*"
       }
     ]
   })
