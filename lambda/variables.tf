@@ -18,11 +18,3 @@ variable "prefix" {
   type        = string
   description = "Add prefix to lambda name so that you won't create a function with the same name"
 }
-
-variable "aws_region" {
-  type = string
-}
-
-variable "account_id" {
-  type = string
-}
