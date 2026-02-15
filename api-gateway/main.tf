@@ -1,3 +1,6 @@
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 locals {
   common_tags = {
     Terraform = var.env
@@ -45,7 +48,7 @@ resource "aws_api_gateway_integration" "integration" {
   integration_http_method = "POST"
   type                    = "AWS"
   # Here the type should be AWS, not AWS_PROXY for lambda integration with CORS
-  uri = "arn:aws:apigateway:${var.my_region}:lambda:path/2015-03-31/functions/${each.value.lambda_function_arn}/invocations"
+  uri = "arn:aws:apigateway:${data.aws_region.current.id}:lambda:path/2015-03-31/functions/${each.value.lambda_function_arn}/invocations"
 
   request_templates = {
     "application/json" = each.value.mapping_template_body
@@ -99,7 +102,7 @@ resource "aws_lambda_permission" "apigw_lambda" {
   function_name = each.value.lambda_function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "arn:aws:execute-api:${var.my_region}:${var.account_Id}:${aws_api_gateway_rest_api.api.id}/*/${aws_api_gateway_method.method[each.key].http_method}${aws_api_gateway_resource.resource[each.key].path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.api.id}/*/${aws_api_gateway_method.method[each.key].http_method}${aws_api_gateway_resource.resource[each.key].path}"
 }
 
 # CORS

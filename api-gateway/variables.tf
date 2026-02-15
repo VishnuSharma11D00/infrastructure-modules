@@ -10,14 +10,6 @@ variable "cors_allowed_origin" {
   type = string
 }
 
-variable "my_region" {
-  type = string
-}
-
-variable "account_Id" {
-  type = number
-}
-
 variable "api_configurations" {
   type = map(object({
     path_part_name          = string
